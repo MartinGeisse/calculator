@@ -8,7 +8,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.tree.IElementType;
-import name.martingeisse.mapag.input.MapagLexer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,12 +27,13 @@ public class CalculatorSyntaxHighlighterFactory extends SyntaxHighlighterFactory
 			@NotNull
 			@Override
 			public Lexer getHighlightingLexer() {
-				return new MapagLexer();
+				return new CalculatorLexer();
 			}
 
 			@NotNull
 			@Override
 			public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
+				// TODO token holder class?
 				throw new UnsupportedOperationException(); // TODO
 				/*
 				if (tokenType instanceof MapagSpecificationToken) {

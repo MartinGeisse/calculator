@@ -12,7 +12,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
-import name.martingeisse.mapag.input.MapagLexer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,14 +24,12 @@ public class CalculatorParserDefinition implements ParserDefinition {
 	@NotNull
 	@Override
 	public Lexer createLexer(Project project) {
-		throw new UnsupportedOperationException(); // TODO
-		// return new MapagLexer();
+		return new CalculatorLexer();
 	}
 
 	@Override
 	public PsiParser createParser(Project project) {
-		throw new UnsupportedOperationException(); // TODO
-//		return new MapagParser();
+		return new MapagGeneratedCalculationParser();
 	}
 
 	@Override
@@ -49,6 +46,7 @@ public class CalculatorParserDefinition implements ParserDefinition {
 	@NotNull
 	@Override
 	public TokenSet getCommentTokens() {
+		// TODO generate symbol IElementType holder class?
 		return TokenSet.create(MapagSpecificationElementTypes.COMMENT);
 	}
 
@@ -61,6 +59,7 @@ public class CalculatorParserDefinition implements ParserDefinition {
 	@NotNull
 	@Override
 	public PsiElement createElement(ASTNode node) {
+		// TODO generate PSI classes? Generate factory for PSI elements?
 		return new ASTWrapperPsiElement(node);
 	}
 
