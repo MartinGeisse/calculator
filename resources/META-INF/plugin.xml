@@ -1,0 +1,28 @@
+<idea-plugin>
+  <id>name.martingeisse.mapag</id>
+  <name>Calculator</name>
+  <version>0.1</version>
+  <vendor email="martingeisse@googlemail.com" url="https://github.com/MartinGeisse">Martin Geisse</vendor>
+
+  <description><![CDATA[
+  This is a test for the MaPaG parser generator. It is a simple language that performs calculations.
+  ]]></description>
+
+  <change-notes><![CDATA[
+  ]]></change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="145.0"/>
+
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!--
+    <fileTypeFactory implementation="name.martingeisse.name.martingeisse.mapag.ide.MapagFileTypeFactory" />
+    <lang.syntaxHighlighterFactory language="JAVAPOT" implementationClass="name.martingeisse.name.martingeisse.mapag.ide.MapagSyntaxHighlighterFactory" />
+    <lang.parserDefinition language="JAVAPOT" implementationClass="name.martingeisse.name.martingeisse.mapag.ide.MapagParserDefinition" />
+    -->
+  </extensions>
+
+</idea-plugin>
