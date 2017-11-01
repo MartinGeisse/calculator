@@ -17,6 +17,8 @@ public class CalculatorTextAttributeKeys {
 	public static final TextAttributesKey[] IDENTIFIER = single("IDENTIFIER", DefaultLanguageHighlighterColors.IDENTIFIER);
 	public static final TextAttributesKey[] PARENTHESES = single("PARENTHESES", DefaultLanguageHighlighterColors.PARENTHESES);
 	public static final TextAttributesKey[] SEMICOLON = single("SEMICOLON", DefaultLanguageHighlighterColors.SEMICOLON);
+	public static final TextAttributesKey[] BLOCK_COMMENT = single("BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT);
+	public static final TextAttributesKey[] LINE_COMMENT = single("LINE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
 	public static final TextAttributesKey[] BAD_CHARACTER = new TextAttributesKey[]{HighlighterColors.BAD_CHARACTER};
 
 	private static TextAttributesKey[] single(@NonNls @NotNull String externalName, TextAttributesKey fallbackAttributeKey) {

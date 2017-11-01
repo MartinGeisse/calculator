@@ -21,9 +21,8 @@ Newline = \r | \n | \r\n
 Whitespace = [ \t\f] | {Newline}
 
 // comments
-Comment = {TraditionalComment} | {EndOfLineComment}
-TraditionalComment = "/*" {CommentContent} \*+ "/"
-EndOfLineComment = "//" [^\r\n]* {Newline}
+BlockComment = "/*" {CommentContent} \*+ "/"
+LineComment = "//" [^\r\n]* {Newline}
 CommentContent = ( [^*] | \*+[^*/] )*
 
 // identifiers
@@ -34,16 +33,17 @@ number = [0] | [1-9][0-9]*
 
 <YYINITIAL> {
 	{Whitespace} { return TokenType.WHITE_SPACE; }
-	"+" { return CalculatorElementTypes.PLUS; }
-	"-" { return CalculatorElementTypes.MINUS; }
-	"*" { return CalculatorElementTypes.TIMES; }
-	"/" { return CalculatorElementTypes.DIVIDED_BY; }
-	"(" { return CalculatorElementTypes.OPENING_PARENTHESIS; }
-	")" { return CalculatorElementTypes.CLOSING_PARENTHESIS; }
-	";" { return CalculatorElementTypes.SEMICOLON; }
-	{Comment} { return CalculatorElementTypes.COMMENT; }
-	{ident} { return CalculatorElementTypes.IDENTIFIER; }
-	{number} { return CalculatorElementTypes.NUMBER; }
+	"+" { return Symbols.PLUS; }
+	"-" { return Symbols.MINUS; }
+	"*" { return Symbols.TIMES; }
+	"/" { return Symbols.DIVIDED_BY; }
+	"(" { return Symbols.OPENING_PARENTHESIS; }
+	")" { return Symbols.CLOSING_PARENTHESIS; }
+	";" { return Symbols.SEMICOLON; }
+	{BlockComment} { return Symbols.BLOCK_COMMENT; }
+	{LineComment} { return Symbols.LINE_COMMENT; }
+	{ident} { return Symbols.IDENTIFIER; }
+	{number} { return Symbols.NUMBER; }
 }
 
 // error fallback

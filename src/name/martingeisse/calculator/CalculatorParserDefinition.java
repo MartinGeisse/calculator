@@ -46,8 +46,7 @@ public class CalculatorParserDefinition implements ParserDefinition {
 	@NotNull
 	@Override
 	public TokenSet getCommentTokens() {
-		// TODO generate symbol IElementType holder class?
-		return TokenSet.create(MapagSpecificationElementTypes.COMMENT);
+		return TokenSet.create(Symbols.BLOCK_COMMENT, Symbols.LINE_COMMENT);
 	}
 
 	@NotNull
@@ -59,7 +58,6 @@ public class CalculatorParserDefinition implements ParserDefinition {
 	@NotNull
 	@Override
 	public PsiElement createElement(ASTNode node) {
-		// TODO generate PSI classes? Generate factory for PSI elements?
 		return new ASTWrapperPsiElement(node);
 	}
 

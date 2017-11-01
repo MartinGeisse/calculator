@@ -167,10 +167,10 @@ public class FlexGeneratedCalculatorLexer implements FlexLexer {
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\2\2\1\3\1\4\1\5\2\6\1\7"+
-    "\1\10\1\11\1\12\1\13\2\0\2\14\1\0";
+    "\1\10\1\11\1\12\1\13\2\0\2\14\1\0\1\15";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -197,10 +197,10 @@ public class FlexGeneratedCalculatorLexer implements FlexLexer {
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\17\0\36\0\17\0\55\0\17\0\74\0\17"+
     "\0\113\0\17\0\17\0\17\0\17\0\17\0\132\0\151"+
-    "\0\170\0\17\0\207";
+    "\0\170\0\17\0\207\0\17";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -227,7 +227,7 @@ public class FlexGeneratedCalculatorLexer implements FlexLexer {
     "\1\11\1\12\1\13\1\14\1\15\1\16\21\0\1\4"+
     "\20\0\1\17\1\20\17\0\4\7\15\0\2\11\5\0"+
     "\1\17\1\21\1\22\14\17\5\20\1\23\11\20\2\0"+
-    "\1\22\14\0\4\20\1\22\1\23\11\20";
+    "\1\22\14\0\4\20\1\24\1\23\11\20";
 
   private static int [] zzUnpackTrans() {
     int [] result = new int[150];
@@ -269,10 +269,10 @@ public class FlexGeneratedCalculatorLexer implements FlexLexer {
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
     "\1\0\1\11\1\1\1\11\1\1\1\11\1\1\1\11"+
-    "\1\1\5\11\2\0\1\1\1\11\1\0";
+    "\1\1\5\11\2\0\1\1\1\11\1\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -588,51 +588,55 @@ public class FlexGeneratedCalculatorLexer implements FlexLexer {
           case 1: 
             { return TokenType.BAD_CHARACTER;
             }
-          case 13: break;
+          case 14: break;
           case 2: 
             { return TokenType.WHITE_SPACE;
             }
-          case 14: break;
-          case 3: 
-            { return CalculatorElementTypes.DIVIDED_BY;
-            }
           case 15: break;
-          case 4: 
-            { return CalculatorElementTypes.TIMES;
+          case 3: 
+            { return Symbols.DIVIDED_BY;
             }
           case 16: break;
-          case 5: 
-            { return CalculatorElementTypes.IDENTIFIER;
+          case 4: 
+            { return Symbols.TIMES;
             }
           case 17: break;
-          case 6: 
-            { return CalculatorElementTypes.NUMBER;
+          case 5: 
+            { return Symbols.IDENTIFIER;
             }
           case 18: break;
-          case 7: 
-            { return CalculatorElementTypes.PLUS;
+          case 6: 
+            { return Symbols.NUMBER;
             }
           case 19: break;
-          case 8: 
-            { return CalculatorElementTypes.MINUS;
+          case 7: 
+            { return Symbols.PLUS;
             }
           case 20: break;
-          case 9: 
-            { return CalculatorElementTypes.OPENING_PARENTHESIS;
+          case 8: 
+            { return Symbols.MINUS;
             }
           case 21: break;
-          case 10: 
-            { return CalculatorElementTypes.CLOSING_PARENTHESIS;
+          case 9: 
+            { return Symbols.OPENING_PARENTHESIS;
             }
           case 22: break;
-          case 11: 
-            { return CalculatorElementTypes.SEMICOLON;
+          case 10: 
+            { return Symbols.CLOSING_PARENTHESIS;
             }
           case 23: break;
-          case 12: 
-            { return CalculatorElementTypes.COMMENT;
+          case 11: 
+            { return Symbols.SEMICOLON;
             }
           case 24: break;
+          case 12: 
+            { return Symbols.LINE_COMMENT;
+            }
+          case 25: break;
+          case 13: 
+            { return Symbols.BLOCK_COMMENT;
+            }
+          case 26: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
