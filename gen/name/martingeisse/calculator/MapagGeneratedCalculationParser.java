@@ -99,7 +99,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 				maxElementTypeIndex = token.getIndex();
 			}
 		}
-		elementTypeIndexToTokenCode = new int[maxElementTypeIndex];
+		elementTypeIndexToTokenCode = new int[maxElementTypeIndex + 1];
 		Arrays.fill(elementTypeIndexToTokenCode, -1);
 		for (int tokenCode = 0; tokenCode < TOKEN_CODE_TO_TOKEN.length; tokenCode++) {
 			IElementType token = TOKEN_CODE_TO_TOKEN[tokenCode];
@@ -151,17 +151,26 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		// initialize static parser information
 		initializeStatic();
 
-		// Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
-		// accept action here since the input cannot contain EOF.
+		// handle unrecoverable syntax errors
 		PsiBuilder.Marker preParseMarker = psiBuilder.mark();
-		while (!psiBuilder.eof()) {
-			consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null);
-		}
-		preParseMarker.rollbackTo();
+		try {
 
-		// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
-		// a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
-		consumeSymbol(EOF_TOKEN_CODE, null);
+			// Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
+			// accept action here since the input cannot contain EOF.
+			while (!psiBuilder.eof()) {
+				consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null);
+			}
+			preParseMarker.rollbackTo();
+
+			// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
+			// a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
+			consumeSymbol(EOF_TOKEN_CODE, null);
+
+		} catch (UnrecoverableSyntaxException e) {
+			psiBuilder.error("syntax error"); // TODO list accepted terminals in current state
+			preParseMarker.rollbackTo();
+			return;
+		}
 
 		// At this point, the state stack should contain single element (the start state) and the associated parse
 		// tree stack contains the root node as its single element. If anything in the input tried to prevent that,
@@ -179,7 +188,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	 * Consumes a symbol (token or nonterminal). This performs one or several actions until the token gets shifted
 	 * (or, in the case of EOF, accepted).
 	 */
-	private void consumeSymbol(int symbolCode, Object symbolData) {
+	private void consumeSymbol(int symbolCode, Object symbolData) throws UnrecoverableSyntaxException {
 		while (true) { // looped on reduce
 			int action = ACTION_TABLE[state * ACTION_TABLE_WIDTH + symbolCode];
 			if (action == Integer.MIN_VALUE) { // accept
@@ -190,7 +199,13 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			} else if (action < 0) { // reduce, then continue with the original symbol
 				reduce(-action - 1);
 			} else { // syntax error
-				throw new RuntimeException("syntax error in state " + state + " on symbolCode " + symbolCode);
+
+				// TODO -- implementing a "giving up" situation first since it's what happens when error recovery
+				// fails. I don't know yet how to tell that to IntelliJ.
+				// throw new RuntimeException("syntax error in state " + state + " on symbolCode " + symbolCode);
+
+
+
 			}
 		}
 	}
@@ -207,7 +222,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		state = newState;
 	}
 
-	private void reduce(int alternativeCode) {
+	private void reduce(int alternativeCode) throws UnrecoverableSyntaxException {
 
 		// determine the alternative to reduce
 		int rightHandSideLength = ALTERNATIVE_CODE_TO_RIGHT_HAND_SIDE_LENGTH[alternativeCode];
@@ -239,6 +254,9 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			}
 			marker.done((IElementType) reduction[0]);
 		}
+	}
+
+	private static class UnrecoverableSyntaxException extends Exception {
 	}
 
 }
