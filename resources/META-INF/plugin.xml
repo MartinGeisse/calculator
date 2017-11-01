@@ -1,5 +1,5 @@
 <idea-plugin>
-  <id>name.martingeisse.mapag</id>
+  <id>name.martingeisse.calculator</id>
   <name>Calculator</name>
   <version>0.1</version>
   <vendor email="martingeisse@googlemail.com" url="https://github.com/MartinGeisse">Martin Geisse</vendor>
@@ -18,11 +18,15 @@
   <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!--
-    <fileTypeFactory implementation="name.martingeisse.name.martingeisse.mapag.ide.MapagFileTypeFactory" />
-    <lang.syntaxHighlighterFactory language="JAVAPOT" implementationClass="name.martingeisse.name.martingeisse.mapag.ide.MapagSyntaxHighlighterFactory" />
-    <lang.parserDefinition language="JAVAPOT" implementationClass="name.martingeisse.name.martingeisse.mapag.ide.MapagParserDefinition" />
-    -->
+    <fileTypeFactory implementation="name.martingeisse.calculator.CalculatorFileTypeFactory" />
+    <lang.syntaxHighlighterFactory language="CALC" implementationClass="name.martingeisse.calculator.CalculatorSyntaxHighlighterFactory" />
+    <lang.parserDefinition language="CALC" implementationClass="name.martingeisse.calculator.CalculatorParserDefinition" />
   </extensions>
+
+  <actions>
+    <action id="Calculcator.Calculate" class="name.martingeisse.calculator.CalculateAction" text="Calculate" description="Run calculator">
+      <add-to-group group-id="ProjectViewPopupMenu" />
+    </action>
+  </actions>
 
 </idea-plugin>

@@ -29,7 +29,6 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		Symbols.SEMICOLON,
 		Symbols.TIMES,
 	};
-	private static final IElementType START_SYMBOL = Symbols.calculation;
 
 	// state machine (general)
 	private static final int START_STATE = 0;
@@ -75,6 +74,9 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	};
 	private static final int[] ALTERNATIVE_CODE_TO_NONTERMINAL_SYMBOL_CODE = {
 	};
+
+	// other
+	private static final IElementType FILE_ELEMENT_TYPE = CalculatorParserDefinition.FILE_ELEMENT_TYPE;
 
 	// ------------------------------------------------------------------------------------------------
 	// --- non-generated stuff (initialization and static stuff)
@@ -138,7 +140,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			throw new IllegalStateException("cannot re-use this parser object");
 		}
 		used = true;
-		if (type != START_SYMBOL) {
+		if (type != FILE_ELEMENT_TYPE) {
 			throw new IllegalArgumentException("unsupported top-level element type to parse: " + type);
 		}
 		parse(builder);
