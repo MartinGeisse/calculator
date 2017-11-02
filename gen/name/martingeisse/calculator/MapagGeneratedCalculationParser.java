@@ -4,9 +4,12 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParser {
 
@@ -17,6 +20,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	// symbols (tokens and nonterminals)
 	private static final int EOF_TOKEN_CODE = 0;
 	private static final IElementType[] TOKEN_CODE_TO_TOKEN = {
+		null, // %eof -- doesn't have an IElementType
 		Symbols.BLOCK_COMMENT,
 		Symbols.CLOSING_PARENTHESIS,
 		Symbols.DIVIDED_BY,
@@ -68,11 +72,53 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	private static final int ACTION_TABLE_WIDTH = 19;
 
 	// state machine (alternatives / reduction table)
-	private static final int[] ALTERNATIVE_CODE_TO_RIGHT_HAND_SIDE_LENGTH = {
+	private static final int[] REDUCTION_CODE_TO_RIGHT_HAND_SIDE_LENGTH = {
+		1,
+		1,
+		1,
+		1,
+		3,
+		3,
+		3,
+		0,
+		2,
+		2,
+		1,
+		1,
+		1,
+		1,
 	};
-	private static final IElementType[] ALTERNATIVE_CODE_TO_NONTERMINAL_ELEMENT_TYPE = {
+	private static final IElementType[] REDUCTION_CODE_TO_NONTERMINAL_ELEMENT_TYPE = {
+		Symbols.calculation,
+		Symbols.calculation_2,
+		Symbols.expression,
+		Symbols.expression,
+		Symbols.expression,
+		Symbols.expression,
+		Symbols.expression,
+		Symbols.calculation_1,
+		Symbols.calculation_1,
+		Symbols.statement,
+		Symbols.expression_2,
+		Symbols.expression_2,
+		Symbols.expression_1,
+		Symbols.expression_1,
 	};
-	private static final int[] ALTERNATIVE_CODE_TO_NONTERMINAL_SYMBOL_CODE = {
+	private static final int[] REDUCTION_CODE_TO_NONTERMINAL_SYMBOL_CODE = {
+		12,
+		14,
+		15,
+		15,
+		15,
+		15,
+		15,
+		13,
+		13,
+		18,
+		17,
+		17,
+		16,
+		16,
 	};
 
 	// other
@@ -95,15 +141,19 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		}
 		int maxElementTypeIndex = 0;
 		for (IElementType token : TOKEN_CODE_TO_TOKEN) {
-			if (maxElementTypeIndex < token.getIndex()) {
-				maxElementTypeIndex = token.getIndex();
+			if (token != null) {
+				if (maxElementTypeIndex < token.getIndex()) {
+					maxElementTypeIndex = token.getIndex();
+				}
 			}
 		}
 		elementTypeIndexToTokenCode = new int[maxElementTypeIndex + 1];
 		Arrays.fill(elementTypeIndexToTokenCode, -1);
 		for (int tokenCode = 0; tokenCode < TOKEN_CODE_TO_TOKEN.length; tokenCode++) {
 			IElementType token = TOKEN_CODE_TO_TOKEN[tokenCode];
-			elementTypeIndexToTokenCode[token.getIndex()] = tokenCode;
+			if (token != null) {
+				elementTypeIndexToTokenCode[token.getIndex()] = tokenCode;
+			}
 		}
 	}
 
@@ -160,6 +210,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			// accept action here since the input cannot contain EOF.
 			while (!psiBuilder.eof()) {
 				consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null);
+				psiBuilder.advanceLexer();
 			}
 
 			// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
@@ -167,11 +218,24 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			consumeSymbol(EOF_TOKEN_CODE, null);
 
 		} catch (UnrecoverableSyntaxException e) {
-			preParseMarker.drop();
-			psiBuilder.error("syntax error"); // TODO list accepted terminals in current state
-			wholeFileMarker.error("another syntax error"); // TODO which message gets shown?
-			// wholeFileMarker.done(FILE_ELEMENT_TYPE);
-			return;
+
+			// Build a "code fragment" node that contains the parsed and partially reduced part (i.e. the parse tree
+			// stack), then the exception to report the error properly, then the remaining tokens (unparsed).
+			List<Object> nodeBuilder = new ArrayList<>();
+			nodeBuilder.add(Symbols.__PARSED_FRAGMENT);
+			for (int i=0; i<stackSize; i++) {
+				nodeBuilder.add(parseTreeStack[i]);
+			}
+			nodeBuilder.add(e);
+			psiBuilder.advanceLexer(); // advance past the symbol that caused the error
+			while (!psiBuilder.eof()) {
+				psiBuilder.getTokenType();
+				nodeBuilder.add(null);
+				psiBuilder.advanceLexer();
+			}
+			parseTreeStack[0] = nodeBuilder.toArray();
+			stackSize = 1;
+
 		}
 		preParseMarker.rollbackTo();
 
@@ -184,6 +248,10 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			throw new RuntimeException("unexpected stack size after accepting start symbol");
 		}
 		feedPsiBuilder(psiBuilder, parseTreeStack[0]);
+
+		// Before we consider the file parsed, we must advance the lexer once more so it consumes end-of-file
+		// whitespace and comments as part of the root AST node.
+		psiBuilder.advanceLexer();
 		wholeFileMarker.done(FILE_ELEMENT_TYPE);
 
 	}
@@ -227,12 +295,12 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		state = newState;
 	}
 
-	private void reduce(int alternativeCode) throws UnrecoverableSyntaxException {
+	private void reduce(int reductionCode) throws UnrecoverableSyntaxException {
 
-		// determine the alternative to reduce
-		int rightHandSideLength = ALTERNATIVE_CODE_TO_RIGHT_HAND_SIDE_LENGTH[alternativeCode];
-		IElementType nonterminalElementType = ALTERNATIVE_CODE_TO_NONTERMINAL_ELEMENT_TYPE[alternativeCode];
-		int nonterminalSymbolCode = ALTERNATIVE_CODE_TO_NONTERMINAL_SYMBOL_CODE[alternativeCode];
+		// determine the reduction (nonterminal + alternative) to reduce
+		int rightHandSideLength = REDUCTION_CODE_TO_RIGHT_HAND_SIDE_LENGTH[reductionCode];
+		IElementType nonterminalElementType = REDUCTION_CODE_TO_NONTERMINAL_ELEMENT_TYPE[reductionCode];
+		int nonterminalSymbolCode = REDUCTION_CODE_TO_NONTERMINAL_SYMBOL_CODE[reductionCode];
 
 		// pop (rightHandSideLength) states off the state stack
 		if (rightHandSideLength > 0) {
@@ -251,17 +319,27 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	}
 
 	private void feedPsiBuilder(PsiBuilder builder, Object what) {
-		if (what instanceof Object[]) {
+		if (what == null) {
+			builder.advanceLexer();
+		} else if (what instanceof Object[]) {
 			Object[] reduction = (Object[]) what;
 			PsiBuilder.Marker marker = builder.mark();
 			for (int i = 1; i < reduction.length; i++) {
 				feedPsiBuilder(builder, reduction[i]);
 			}
 			marker.done((IElementType) reduction[0]);
+		} else if (what instanceof UnrecoverableSyntaxException) {
+			builder.error(((UnrecoverableSyntaxException)what).getMessage());
+			builder.advanceLexer();
 		}
 	}
 
 	private static class UnrecoverableSyntaxException extends Exception {
+
+		public UnrecoverableSyntaxException() {
+			super("syntax error");
+		}
+
 	}
 
 }
