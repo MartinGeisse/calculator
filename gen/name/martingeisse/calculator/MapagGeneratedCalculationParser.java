@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO uses the term "token code" wrong; the TC of the first token is 0, but this class actually uses symbol codes
+// and the SC of the first token is 2 (0 is %eof, 1 is %error). Behavior is correct, only the names are wrong.
 public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParser {
 
 	// ------------------------------------------------------------------------------------------------
@@ -19,8 +21,10 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 
 	// symbols (tokens and nonterminals)
 	private static final int EOF_TOKEN_CODE = 0;
+	private static final int ERROR_SYMBOL_CODE = 1;
 	private static final IElementType[] TOKEN_CODE_TO_TOKEN = {
 		null, // %eof -- doesn't have an IElementType
+		null, // %error -- doesn't have an IElementType
 		Symbols.BLOCK_COMMENT,
 		Symbols.CLOSING_PARENTHESIS,
 		Symbols.DIVIDED_BY,
@@ -39,37 +43,37 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 
 	// state machine (action table)
 	private static final int[] ACTION_TABLE = {
-		-8,  0,  0,  0,  -8,  0,  0,  -8,  -8,  0,  0,  0,  2,  3,  0,  0,  0,  0,  0,
-		-2147483648,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-1,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  4,  24,  0,  0,  5,
-		-9,  0,  0,  0,  -9,  0,  0,  -9,  -9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-2,  0,  0,  0,  -2,  0,  0,  -2,  -2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  16,  0,  0,  0,
-		0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  17,  0,  0,  0,
-		0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  20,  0,  0,  0,
-		0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  21,  0,  0,  0,
-		0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  22,  0,  0,  0,
-		0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  23,  0,  0,  0,
-		0,  0,  -4,  -4,  0,  0,  -4,  0,  0,  -4,  0,  -4,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  -4,  0,  0,  -4,  0,  0,  -4,  -4,  -4,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  -3,  -3,  0,  0,  -3,  0,  0,  -3,  0,  -3,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  -3,  0,  0,  -3,  0,  0,  -3,  -3,  -3,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  18,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  19,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  -7,  -7,  0,  0,  -7,  0,  0,  -7,  0,  -7,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  -7,  0,  0,  -7,  0,  0,  -7,  -7,  -7,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  -5,  27,  0,  0,  -5,  0,  0,  -5,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  -6,  -6,  0,  0,  -6,  0,  0,  -6,  0,  -6,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  0,  27,  0,  0,  -5,  0,  0,  -5,  -5,  28,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  -6,  0,  0,  -6,  0,  0,  -6,  -6,  -6,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  27,  0,  0,  25,  0,  0,  26,  29,  28,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  0,  -14,  0,  0,  -14,  -14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -13,  0,  0,  -13,  -13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -12,  0,  0,  -12,  -12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-10,  0,  0,  0,  -10,  0,  0,  -10,  -10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		-8,  0,  0,  0,  0,  -8,  0,  0,  -8,  -8,  0,  0,  0,  2,  3,  0,  0,  0,  0,  0,
+		-2147483648,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		-1,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  4,  24,  0,  0,  5,
+		-9,  0,  0,  0,  0,  -9,  0,  0,  -9,  -9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		-2,  0,  0,  0,  0,  -2,  0,  0,  -2,  -2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  16,  0,  0,  0,
+		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  17,  0,  0,  0,
+		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  20,  0,  0,  0,
+		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  21,  0,  0,  0,
+		0,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  22,  0,  0,  0,
+		0,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  23,  0,  0,  0,
+		0,  0,  0,  -4,  -4,  0,  0,  -4,  0,  0,  -4,  0,  -4,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  -4,  0,  0,  -4,  0,  0,  -4,  -4,  -4,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  -3,  -3,  0,  0,  -3,  0,  0,  -3,  0,  -3,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  -3,  0,  0,  -3,  0,  0,  -3,  -3,  -3,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  18,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
+		0,  0,  0,  19,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
+		0,  0,  0,  -7,  -7,  0,  0,  -7,  0,  0,  -7,  0,  -7,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  -7,  0,  0,  -7,  0,  0,  -7,  -7,  -7,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  -5,  27,  0,  0,  -5,  0,  0,  -5,  0,  28,  0,  0,  0,  0,  8,  9,  0,
+		0,  0,  0,  -6,  -6,  0,  0,  -6,  0,  0,  -6,  0,  -6,  0,  0,  0,  0,  8,  9,  0,
+		0,  0,  0,  0,  27,  0,  0,  -5,  0,  0,  -5,  -5,  28,  0,  0,  0,  0,  10,  11,  0,
+		0,  0,  0,  0,  -6,  0,  0,  -6,  0,  0,  -6,  -6,  -6,  0,  0,  0,  0,  10,  11,  0,
+		0,  0,  0,  0,  27,  0,  0,  25,  0,  0,  26,  29,  28,  0,  0,  0,  0,  10,  11,  0,
+		0,  0,  0,  0,  0,  -14,  0,  0,  -14,  -14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  -13,  0,  0,  -13,  -13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  -12,  0,  0,  -12,  -12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		-10,  0,  0,  0,  0,  -10,  0,  0,  -10,  -10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	};
-	private static final int ACTION_TABLE_WIDTH = 19;
+	private static final int ACTION_TABLE_WIDTH = 20;
 
 	// state machine (alternatives / reduction table)
 	private static final int[] REDUCTION_CODE_TO_RIGHT_HAND_SIDE_LENGTH = {
@@ -105,20 +109,20 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		Symbols.expression_1,
 	};
 	private static final int[] REDUCTION_CODE_TO_NONTERMINAL_SYMBOL_CODE = {
-		12,
+		13,
+		15,
+		16,
+		16,
+		16,
+		16,
+		16,
 		14,
-		15,
-		15,
-		15,
-		15,
-		15,
-		13,
-		13,
+		14,
+		19,
+		18,
 		18,
 		17,
 		17,
-		16,
-		16,
 	};
 
 	// other
@@ -209,30 +213,24 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			// Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
 			// accept action here since the input cannot contain EOF.
 			while (!psiBuilder.eof()) {
-				consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null);
+				consumeInputSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), psiBuilder);
 				psiBuilder.advanceLexer();
 			}
 
 			// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
 			// a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
-			consumeSymbol(EOF_TOKEN_CODE, null);
+			consumeInputSymbol(EOF_TOKEN_CODE, psiBuilder);
 
 		} catch (UnrecoverableSyntaxException e) {
 
 			// Build a "code fragment" node that contains the parsed and partially reduced part (i.e. the parse tree
-			// stack), then the exception to report the error properly, then the remaining tokens (unparsed).
+			// stack), then the exception. This will report the error properly and also consume the remaining tokens.
 			List<Object> nodeBuilder = new ArrayList<>();
 			nodeBuilder.add(Symbols.__PARSED_FRAGMENT);
 			for (int i=0; i<stackSize; i++) {
 				nodeBuilder.add(parseTreeStack[i]);
 			}
 			nodeBuilder.add(e);
-			psiBuilder.advanceLexer(); // advance past the symbol that caused the error
-			while (!psiBuilder.eof()) {
-				psiBuilder.getTokenType();
-				nodeBuilder.add(null);
-				psiBuilder.advanceLexer();
-			}
 			parseTreeStack[0] = nodeBuilder.toArray();
 			stackSize = 1;
 
@@ -257,26 +255,76 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	}
 
 	/**
-	 * Consumes a symbol (token or nonterminal). This performs one or several actions until the token gets shifted
+	 * Consumes an input symbol (token or EOF). This performs one or several actions until the token gets shifted
 	 * (or, in the case of EOF, accepted).
 	 */
-	private void consumeSymbol(int symbolCode, Object symbolData) throws UnrecoverableSyntaxException {
+	private void consumeInputSymbol(int symbolCode, PsiBuilder psiBuilder) throws UnrecoverableSyntaxException {
+		if (consumeSymbol(symbolCode, null)) {
+			return;
+		}
+
+		// Attempt error recovery. Note the edge cases: Both the current state (at the current stack size) and the
+		// start state (with an empty stack) could be able to consume the error symbol.
+		int originalStackSize = stackSize;
+		while (true) {
+			// TODO
+			if (ACTION_TABLE[state * ACTION_TABLE_WIDTH + ERROR_SYMBOL_CODE] != 0) {
+//				make a backup of the stack;
+//				parse without error recovery;
+//				if (success) {
+//					TODO;
+//				} else {
+//					restore stack backup;
+//				}
+			}
+			stackSize--;
+			if (stackSize < 0) {
+				break;
+			}
+			state = stateStack[stackSize];
+		}
+
+		// Error recovery failed, so we'll signal a "giving up" syntax error and wrap the remainder of the input in
+		// a dummy AST node. We don't bother restoring the original parser state since it's irrelevant now.
+		stackSize = originalStackSize;
+		throw new UnrecoverableSyntaxException();
+	}
+
+	/**
+	 * Consumes a symbol (token, nonterminal or EOF). This performs one or several actions until the symbol gets shifted
+	 * (or, in the case of EOF, accepted).
+	 *
+	 * Returns true on success, false on syntax error. This method does not handle syntax errors itself.
+	 */
+	private boolean consumeSymbol(int symbolCode, Object symbolData) throws UnrecoverableSyntaxException {
 		while (true) { // looped on reduce
 			int action = ACTION_TABLE[state * ACTION_TABLE_WIDTH + symbolCode];
 			if (action == Integer.MIN_VALUE) { // accept
-				break;
+				return true;
 			} else if (action > 0) { // shift
 				shift(symbolData, action - 1);
-				break;
+				return true;
 			} else if (action < 0) { // reduce, then continue with the original symbol
 				reduce(-action - 1);
 			} else { // syntax error
+				return false;
 
 				// TODO -- implementing a "giving up" situation first since it's what happens when error recovery
 				// fails. I don't know yet how to tell that to IntelliJ.
 				// throw new RuntimeException("syntax error in state " + state + " on symbolCode " + symbolCode);
 
-				throw new UnrecoverableSyntaxException();
+				// error recovery: the terminal that caused the error should be pushed back as part of the
+				// next terminals that are speculatively read during error recovery. This handles the case
+				// of a missing symbol before the sync symbols, such as
+				//
+				//  x = ;
+				//
+				// Here the semicolon causes the error but is also the sync symbol for recovery.
+				// -->
+				// But that's handled automatically since the lexer is still positioned at that symbol and can ask
+				// for it again using psiBuilder.getTokenType(). So there is nothing to do, just don't advance the
+				// lexer, and after recovery, make sure that the current token could be the first to consume.
+
 
 
 			}
@@ -313,8 +361,10 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		reduction[0] = nonterminalElementType;
 		System.arraycopy(parseTreeStack, stackSize, reduction, 1, rightHandSideLength);
 
-		// shift the nonterminal
-		consumeSymbol(nonterminalSymbolCode, reduction);
+		// shift the nonterminal (errors cannot occur here in LR(1) parsing)
+		if (!consumeSymbol(nonterminalSymbolCode, reduction)) {
+			throw new RuntimeException("syntax error while shifting a nonterminal... WTF?");
+		}
 
 	}
 
@@ -330,7 +380,9 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			marker.done((IElementType) reduction[0]);
 		} else if (what instanceof UnrecoverableSyntaxException) {
 			builder.error(((UnrecoverableSyntaxException)what).getMessage());
-			builder.advanceLexer();
+			while (!builder.eof()) {
+				builder.advanceLexer();
+			}
 		}
 	}
 
