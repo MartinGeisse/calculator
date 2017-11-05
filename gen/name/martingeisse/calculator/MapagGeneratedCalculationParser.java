@@ -45,7 +45,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	private static final int[] ACTION_TABLE = {
 		-8,  0,  0,  0,  0,  -8,  0,  0,  -8,  -8,  0,  0,  0,  2,  3,  0,  0,  0,  0,  0,
 		-2147483648,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-1,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  4,  24,  0,  0,  5,
+		-1,  29,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  4,  24,  0,  0,  5,
 		-9,  0,  0,  0,  0,  -9,  0,  0,  -9,  -9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		-2,  0,  0,  0,  0,  -2,  0,  0,  -2,  -2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  16,  0,  0,  0,
@@ -66,11 +66,13 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		0,  0,  0,  -6,  -6,  0,  0,  -6,  0,  0,  -6,  0,  -6,  0,  0,  0,  0,  8,  9,  0,
 		0,  0,  0,  0,  27,  0,  0,  -5,  0,  0,  -5,  -5,  28,  0,  0,  0,  0,  10,  11,  0,
 		0,  0,  0,  0,  -6,  0,  0,  -6,  0,  0,  -6,  -6,  -6,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  0,  27,  0,  0,  25,  0,  0,  26,  29,  28,  0,  0,  0,  0,  10,  11,  0,
+		0,  0,  0,  0,  27,  0,  0,  25,  0,  0,  26,  31,  28,  0,  0,  0,  0,  10,  11,  0,
+		0,  0,  0,  0,  0,  -15,  0,  0,  -15,  -15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  -14,  0,  0,  -14,  -14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  -13,  0,  0,  -13,  -13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  -12,  0,  0,  -12,  -12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  30,  0,  0,  0,  0,  0,  0,  0,  0,
+		-11,  0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		-10,  0,  0,  0,  0,  -10,  0,  0,  -10,  -10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	};
 	private static final int ACTION_TABLE_WIDTH = 20;
@@ -85,6 +87,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		3,
 		3,
 		0,
+		2,
 		2,
 		2,
 		1,
@@ -103,6 +106,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		Symbols.calculation_1,
 		Symbols.calculation_1,
 		Symbols.statement,
+		Symbols.statement,
 		Symbols.expression_2,
 		Symbols.expression_2,
 		Symbols.expression_1,
@@ -119,6 +123,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		14,
 		14,
 		19,
+		19,
 		18,
 		18,
 		17,
@@ -127,6 +132,8 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 
 	// other
 	private static final IElementType FILE_ELEMENT_TYPE = CalculatorParserDefinition.FILE_ELEMENT_TYPE;
+	private static final int RECOVERY_SYNC_LENGTH = 3;
+	private static final Object ERROR_LOCATION_INDICATOR = new Object();
 
 	// ------------------------------------------------------------------------------------------------
 	// --- non-generated stuff (initialization and static stuff)
@@ -213,13 +220,21 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			// Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
 			// accept action here since the input cannot contain EOF.
 			while (!psiBuilder.eof()) {
-				consumeInputSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), psiBuilder);
-				psiBuilder.advanceLexer();
+				if (consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null)) {
+					psiBuilder.advanceLexer();
+				} else {
+					recoverFromError(psiBuilder);
+				}
 			}
 
 			// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
 			// a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
-			consumeInputSymbol(EOF_TOKEN_CODE, psiBuilder);
+			if (!consumeSymbol(EOF_TOKEN_CODE, null)) {
+				recoverFromError(psiBuilder);
+				if (!consumeSymbol(EOF_TOKEN_CODE, null)) {
+					throw new UnrecoverableSyntaxException();
+				}
+			}
 
 		} catch (UnrecoverableSyntaxException e) {
 
@@ -255,42 +270,6 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	}
 
 	/**
-	 * Consumes an input symbol (token or EOF). This performs one or several actions until the token gets shifted
-	 * (or, in the case of EOF, accepted).
-	 */
-	private void consumeInputSymbol(int symbolCode, PsiBuilder psiBuilder) throws UnrecoverableSyntaxException {
-		if (consumeSymbol(symbolCode, null)) {
-			return;
-		}
-
-		// Attempt error recovery. Note the edge cases: Both the current state (at the current stack size) and the
-		// start state (with an empty stack) could be able to consume the error symbol.
-		int originalStackSize = stackSize;
-		while (true) {
-			// TODO
-			if (ACTION_TABLE[state * ACTION_TABLE_WIDTH + ERROR_SYMBOL_CODE] != 0) {
-//				make a backup of the stack;
-//				parse without error recovery;
-//				if (success) {
-//					TODO;
-//				} else {
-//					restore stack backup;
-//				}
-			}
-			stackSize--;
-			if (stackSize < 0) {
-				break;
-			}
-			state = stateStack[stackSize];
-		}
-
-		// Error recovery failed, so we'll signal a "giving up" syntax error and wrap the remainder of the input in
-		// a dummy AST node. We don't bother restoring the original parser state since it's irrelevant now.
-		stackSize = originalStackSize;
-		throw new UnrecoverableSyntaxException();
-	}
-
-	/**
 	 * Consumes a symbol (token, nonterminal or EOF). This performs one or several actions until the symbol gets shifted
 	 * (or, in the case of EOF, accepted).
 	 *
@@ -308,25 +287,6 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 				reduce(-action - 1);
 			} else { // syntax error
 				return false;
-
-				// TODO -- implementing a "giving up" situation first since it's what happens when error recovery
-				// fails. I don't know yet how to tell that to IntelliJ.
-				// throw new RuntimeException("syntax error in state " + state + " on symbolCode " + symbolCode);
-
-				// error recovery: the terminal that caused the error should be pushed back as part of the
-				// next terminals that are speculatively read during error recovery. This handles the case
-				// of a missing symbol before the sync symbols, such as
-				//
-				//  x = ;
-				//
-				// Here the semicolon causes the error but is also the sync symbol for recovery.
-				// -->
-				// But that's handled automatically since the lexer is still positioned at that symbol and can ask
-				// for it again using psiBuilder.getTokenType(). So there is nothing to do, just don't advance the
-				// lexer, and after recovery, make sure that the current token could be the first to consume.
-
-
-
 			}
 		}
 	}
@@ -378,12 +338,112 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 				feedPsiBuilder(builder, reduction[i]);
 			}
 			marker.done((IElementType) reduction[0]);
+		} else if (what instanceof List<?>) {
+			// an object list has the same meaning as an object array (needed for error symbols)
+			feedPsiBuilder(builder, ((List<?>)what).toArray());
+		} else if (what == ERROR_LOCATION_INDICATOR) {
+			builder.error("syntax error");
 		} else if (what instanceof UnrecoverableSyntaxException) {
 			builder.error(((UnrecoverableSyntaxException)what).getMessage());
 			while (!builder.eof()) {
 				builder.advanceLexer();
 			}
 		}
+	}
+
+	private void recoverFromError(PsiBuilder psiBuilder) throws UnrecoverableSyntaxException {
+
+		// Attempt error recovery. For now, this parser uses the same logic as Java CUP: find the first state from the
+		// stack that can shift an error symbol, then throw away input terminals until parsing succeeds for
+		// RECOVERY_SYNC_LENGTH terminals. This is okay-ish but it will never find recovery-capable states deeper in
+		// the stack. For example, in a C-like language, if we allow a statement to consist of an error symbol, but
+		// also allow a function to consist of an error symbol, then a syntax error in a statement will never try to
+		// reduce the whole broken function to %error -- it will always insist on reducing only the broken statement
+		// to %error.
+		//
+		// Note the edge cases: Both the current state (at the current stack size) and the start state (with an empty
+		// stack) could be able to consume the error symbol.
+
+		// dig up a recovery-capable state from the stack
+		int originalStackSize = stackSize;
+		while (ACTION_TABLE[state * ACTION_TABLE_WIDTH + ERROR_SYMBOL_CODE] == 0) {
+			stackSize--;
+			if (stackSize < 0) {
+				// we didn't even find a recovery-capable state
+				stackSize = originalStackSize;
+				throw new UnrecoverableSyntaxException();
+			}
+			state = stateStack[stackSize];
+		}
+
+		// all symbols (terminals and nonterminals) we removed make up the first part of the erroneous content
+		List<Object> errorNodeBuilder = new ArrayList<>();
+		errorNodeBuilder.add(Symbols.__PARSED_FRAGMENT); // not an error-indicating element type, see next paragraph
+		for (int i = stackSize; i < originalStackSize; i++) {
+			errorNodeBuilder.add(parseTreeStack[i]);
+		}
+
+		// This special object is used to signal the exact location of the error to the PsiBuilder. We do not mark
+		// the whole error node as an error because IntelliJ would then underline that whole node, making it harder
+		// for the user to locate the error. For example, if the grammar allows to reduce the content for a whole
+		// broken statement to %error, IntelliJ would underline the whole broken statement as an error, not just the
+		// location where the error occurred.
+		errorNodeBuilder.add(ERROR_LOCATION_INDICATOR);
+
+		// shift the error symbol. The parse tree is the node builder, so we can add further discarded tokens below.
+		if (!consumeSymbol(ERROR_SYMBOL_CODE, errorNodeBuilder)) {
+			throw new RuntimeException("failed to push error symbol in state that should consume it");
+		}
+
+		// throw away further erroneous content until parsing works again for RECOVERY_SYNC_LENGTH steps
+		while (true) {
+
+			// make a backup of the state and stack
+			int backupState = state;
+			int backupStackSize = stackSize;
+			int[] backupStateStack = Arrays.copyOf(stateStack, stackSize);
+			Object[] backupParseTreeStack = Arrays.copyOf(parseTreeStack, stackSize);
+
+			// Attempt to parse for RECOVERY_SYNC_LENGTH steps (stop early if we hit EOF). If we reach EOF, then we
+			// must be able to consume that too
+			PsiBuilder.Marker marker = psiBuilder.mark();
+			boolean success = true;
+			for (int i = 0; i < RECOVERY_SYNC_LENGTH && !psiBuilder.eof(); i++) {
+				if (consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null)) {
+					psiBuilder.advanceLexer();
+				} else {
+					success = false;
+					break;
+				}
+			}
+			if (success && psiBuilder.eof()) {
+				success = consumeSymbol(EOF_TOKEN_CODE, null);
+			}
+			marker.rollbackTo();
+
+			// restore state and stack backup
+			System.arraycopy(backupStateStack, 0, stateStack, 0, backupStackSize);
+			System.arraycopy(backupParseTreeStack, 0, parseTreeStack, 0, backupStackSize);
+			stackSize = backupStackSize;
+			state = backupState;
+
+			// Check if successful. If so, resume normal parsing. If not, discard a token.
+			if (success) {
+				return;
+			}
+			if (psiBuilder.eof()) {
+				// Error recovery failed, so we'll signal a "giving up" syntax error and wrap the remainder of the
+				// input in a dummy AST node. We don't bother restoring the original parser state since it's
+				// irrelevant now. The PSI builder need not be reset here -- that happens automatically after the
+				// catch block.
+				stackSize = originalStackSize;
+				throw new UnrecoverableSyntaxException();
+			}
+			errorNodeBuilder.add(null);
+			psiBuilder.advanceLexer();
+
+		}
+
 	}
 
 	private static class UnrecoverableSyntaxException extends Exception {
