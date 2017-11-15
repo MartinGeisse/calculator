@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO uses the term "token code" wrong; the TC of the first token is 0, but this class actually uses symbol codes
-// and the SC of the first token is 2 (0 is %eof, 1 is %error). Behavior is correct, only the names are wrong.
 public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParser {
 
 	// ------------------------------------------------------------------------------------------------
@@ -20,115 +18,111 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	// ------------------------------------------------------------------------------------------------
 
 	// symbols (tokens and nonterminals)
-	private static final int EOF_TOKEN_CODE = 0;
+	private static final int EOF_SYMBOL_CODE = 0;
 	private static final int ERROR_SYMBOL_CODE = 1;
-	private static final IElementType[] TOKEN_CODE_TO_TOKEN = {
-		null, // %eof -- doesn't have an IElementType
-		null, // %error -- doesn't have an IElementType
-		Symbols.BLOCK_COMMENT,
-		Symbols.CLOSING_PARENTHESIS,
-		Symbols.DIVIDED_BY,
-		Symbols.IDENTIFIER,
-		Symbols.LINE_COMMENT,
-		Symbols.MINUS,
-		Symbols.NUMBER,
-		Symbols.OPENING_PARENTHESIS,
-		Symbols.PLUS,
-		Symbols.SEMICOLON,
-		Symbols.TIMES,
-	};
+	private static final IElementType[] SYMBOL_CODE_TO_ELEMENT_TYPE = {
+    	null, // %eof -- doesn't have an IElementType
+    	null, // %error -- doesn't have an IElementType
+                    Symbols.BLOCK_COMMENT,
+                    Symbols.CLOSING_PARENTHESIS,
+                    Symbols.DIVIDED_BY,
+                    Symbols.IDENTIFIER,
+                    Symbols.LINE_COMMENT,
+                    Symbols.MINUS,
+                    Symbols.NUMBER,
+                    Symbols.OPENING_PARENTHESIS,
+                    Symbols.PLUS,
+                    Symbols.SEMICOLON,
+                    Symbols.TIMES,
+        	};
 
 	// state machine (general)
 	private static final int START_STATE = 0;
 
 	// state machine (action table)
 	private static final int[] ACTION_TABLE = {
-		-8,  0,  0,  0,  0,  -8,  0,  0,  -8,  -8,  0,  0,  0,  2,  3,  0,  0,  0,  0,  0,
-		-2147483648,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-1,  29,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  4,  24,  0,  0,  5,
-		-9,  0,  0,  0,  0,  -9,  0,  0,  -9,  -9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-2,  0,  0,  0,  0,  -2,  0,  0,  -2,  -2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  16,  0,  0,  0,
-		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  17,  0,  0,  0,
-		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  20,  0,  0,  0,
-		0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  0,  21,  0,  0,  0,
-		0,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  22,  0,  0,  0,
-		0,  0,  0,  0,  0,  13,  0,  0,  15,  7,  0,  0,  0,  0,  0,  0,  23,  0,  0,  0,
-		0,  0,  0,  -4,  -4,  0,  0,  -4,  0,  0,  -4,  0,  -4,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -4,  0,  0,  -4,  0,  0,  -4,  -4,  -4,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  -3,  -3,  0,  0,  -3,  0,  0,  -3,  0,  -3,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -3,  0,  0,  -3,  0,  0,  -3,  -3,  -3,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  18,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  0,  19,  27,  0,  0,  25,  0,  0,  26,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  0,  -7,  -7,  0,  0,  -7,  0,  0,  -7,  0,  -7,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  -7,  0,  0,  -7,  0,  0,  -7,  -7,  -7,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  -5,  27,  0,  0,  -5,  0,  0,  -5,  0,  28,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  0,  -6,  -6,  0,  0,  -6,  0,  0,  -6,  0,  -6,  0,  0,  0,  0,  8,  9,  0,
-		0,  0,  0,  0,  27,  0,  0,  -5,  0,  0,  -5,  -5,  28,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  0,  -6,  0,  0,  -6,  0,  0,  -6,  -6,  -6,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  0,  27,  0,  0,  25,  0,  0,  26,  31,  28,  0,  0,  0,  0,  10,  11,  0,
-		0,  0,  0,  0,  0,  -15,  0,  0,  -15,  -15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  -14,  0,  0,  -14,  -14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  -13,  0,  0,  -13,  -13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  -12,  0,  0,  -12,  -12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  30,  0,  0,  0,  0,  0,  0,  0,  0,
-		-11,  0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		-10,  0,  0,  0,  0,  -10,  0,  0,  -10,  -10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	};
-	private static final int ACTION_TABLE_WIDTH = 20;
+                     -13,  0,  0,  0,  0,  -13,  0,  0,  -13,  -13,  0,  0,  0,  2,  3,  0,  0,  0,  0, 
+                     -2147483648,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     -1,  28,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  23,  0,  0,  4, 
+                     -14,  0,  0,  0,  0,  -14,  0,  0,  -14,  -14,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  11,  0,  0,  13,  5,  0,  0,  0,  0,  0,  15,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  11,  0,  0,  13,  5,  0,  0,  0,  0,  0,  16,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  11,  0,  0,  13,  5,  0,  0,  0,  0,  0,  19,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  11,  0,  0,  13,  5,  0,  0,  0,  0,  0,  20,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  21,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  12,  0,  0,  14,  6,  0,  0,  0,  0,  0,  22,  0,  0,  0, 
+                     0,  0,  0,  -5,  -5,  0,  0,  -5,  0,  0,  -5,  0,  -5,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  -5,  0,  0,  -5,  0,  0,  -5,  -5,  -5,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  -4,  -4,  0,  0,  -4,  0,  0,  -4,  0,  -4,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  -4,  0,  0,  -4,  0,  0,  -4,  -4,  -4,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  17,  26,  0,  0,  24,  0,  0,  25,  0,  27,  0,  0,  0,  7,  8,  0, 
+                     0,  0,  0,  18,  26,  0,  0,  24,  0,  0,  25,  0,  27,  0,  0,  0,  7,  8,  0, 
+                     0,  0,  0,  -8,  -8,  0,  0,  -8,  0,  0,  -8,  0,  -8,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  -8,  0,  0,  -8,  0,  0,  -8,  -8,  -8,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  -6,  26,  0,  0,  -6,  0,  0,  -6,  0,  27,  0,  0,  0,  7,  8,  0, 
+                     0,  0,  0,  -7,  -7,  0,  0,  -7,  0,  0,  -7,  0,  -7,  0,  0,  0,  7,  8,  0, 
+                     0,  0,  0,  0,  26,  0,  0,  -6,  0,  0,  -6,  -6,  27,  0,  0,  0,  9,  10,  0, 
+                     0,  0,  0,  0,  -7,  0,  0,  -7,  0,  0,  -7,  -7,  -7,  0,  0,  0,  9,  10,  0, 
+                     0,  0,  0,  0,  26,  0,  0,  24,  0,  0,  25,  30,  27,  0,  0,  0,  9,  10,  0, 
+                     0,  0,  0,  0,  0,  -12,  0,  0,  -12,  -12,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  -11,  0,  0,  -11,  -11,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  -3,  0,  0,  -3,  -3,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  -2,  0,  0,  -2,  -2,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  29,  0,  0,  0,  0,  0,  0,  0, 
+                     -10,  0,  0,  0,  0,  -10,  0,  0,  -10,  -10,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+                     -9,  0,  0,  0,  0,  -9,  0,  0,  -9,  -9,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
+        	};
+	private static final int ACTION_TABLE_WIDTH = 19;
 
 	// state machine (alternatives / reduction table)
-	private static final int[] REDUCTION_CODE_TO_RIGHT_HAND_SIDE_LENGTH = {
-		1,
-		1,
-		1,
-		1,
-		3,
-		3,
-		3,
-		0,
-		2,
-		2,
-		2,
-		1,
-		1,
-		1,
-		1,
-	};
-	private static final IElementType[] REDUCTION_CODE_TO_NONTERMINAL_ELEMENT_TYPE = {
-		Symbols.calculation,
-		Symbols.calculation_2,
-		Symbols.expression,
-		Symbols.expression,
-		Symbols.expression,
-		Symbols.expression,
-		Symbols.expression,
-		Symbols.calculation_1,
-		Symbols.calculation_1,
-		Symbols.statement,
-		Symbols.statement,
-		Symbols.expression_2,
-		Symbols.expression_2,
-		Symbols.expression_1,
-		Symbols.expression_1,
-	};
-	private static final int[] REDUCTION_CODE_TO_NONTERMINAL_SYMBOL_CODE = {
-		13,
-		15,
-		16,
-		16,
-		16,
-		16,
-		16,
-		14,
-		14,
-		19,
-		19,
-		18,
-		18,
-		17,
-		17,
-	};
+	private static final int[] ALTERNATIVE_INDEX_TO_RIGHT_HAND_SIDE_LENGTH = {
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    3,
+                    3,
+                    3,
+                    2,
+                    2,
+                    1,
+                    1,
+                    0,
+                    2,
+        	};
+	private static final IElementType[] ALTERNATIVE_INDEX_TO_NONTERMINAL_ELEMENT_TYPE = {
+                    Symbols.calculation,
+                    Symbols.expression_Multiplicative_Operator,
+                    Symbols.expression_Multiplicative_Operator,
+                    Symbols.expression,
+                    Symbols.expression,
+                    Symbols.expression,
+                    Symbols.expression,
+                    Symbols.expression,
+                    Symbols.statement,
+                    Symbols.statement,
+                    Symbols.expression_Additive_Operator,
+                    Symbols.expression_Additive_Operator,
+                    Symbols.calculation_Statements,
+                    Symbols.calculation_Statements,
+        	};
+	private static final int[] ALTERNATIVE_INDEX_TO_NONTERMINAL_SYMBOL_CODE = {
+                    13,
+                    17,
+                    17,
+                    15,
+                    15,
+                    15,
+                    15,
+                    15,
+                    18,
+                    18,
+                    16,
+                    16,
+                    14,
+                    14,
+        	};
 
 	// other
 	private static final IElementType FILE_ELEMENT_TYPE = CalculatorParserDefinition.FILE_ELEMENT_TYPE;
@@ -140,40 +134,40 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	// ------------------------------------------------------------------------------------------------
 
 	// static table, but has to be initialized at startup since element type indices aren't compile-time constants
-	private static int[] elementTypeIndexToTokenCode;
+	private static int[] elementTypeIndexToSymbolCode;
 
 	/**
 	 * This method initializes static tables on the first parse run -- we need element type
 	 * indices to be initialized before doing this.
 	 */
 	private static void initializeStatic() {
-		if (elementTypeIndexToTokenCode != null) {
+		if (elementTypeIndexToSymbolCode != null) {
 			return;
 		}
 		int maxElementTypeIndex = 0;
-		for (IElementType token : TOKEN_CODE_TO_TOKEN) {
-			if (token != null) {
-				if (maxElementTypeIndex < token.getIndex()) {
-					maxElementTypeIndex = token.getIndex();
-				}
-			}
+		for (IElementType token : SYMBOL_CODE_TO_ELEMENT_TYPE) {
+		    if (token != null) {
+                if (maxElementTypeIndex < token.getIndex()) {
+                    maxElementTypeIndex = token.getIndex();
+                }
+		    }
 		}
-		elementTypeIndexToTokenCode = new int[maxElementTypeIndex + 1];
-		Arrays.fill(elementTypeIndexToTokenCode, -1);
-		for (int tokenCode = 0; tokenCode < TOKEN_CODE_TO_TOKEN.length; tokenCode++) {
-			IElementType token = TOKEN_CODE_TO_TOKEN[tokenCode];
+		elementTypeIndexToSymbolCode = new int[maxElementTypeIndex + 1];
+		Arrays.fill(elementTypeIndexToSymbolCode, -1);
+		for (int symbolCode = 0; symbolCode < SYMBOL_CODE_TO_ELEMENT_TYPE.length; symbolCode++) {
+			IElementType token = SYMBOL_CODE_TO_ELEMENT_TYPE[symbolCode];
 			if (token != null) {
-				elementTypeIndexToTokenCode[token.getIndex()] = tokenCode;
+    			elementTypeIndexToSymbolCode[token.getIndex()] = symbolCode;
 			}
 		}
 	}
 
-	private static int getTokenCodeForElementType(IElementType elementType) {
+	private static int getSymbolCodeForElementType(IElementType elementType) {
 		int index = elementType.getIndex();
-		if (index >= 0 && index < elementTypeIndexToTokenCode.length) {
-			int tokenCode = elementTypeIndexToTokenCode[index];
-			if (tokenCode >= 0) {
-				return tokenCode;
+		if (index >= 0 && index < elementTypeIndexToSymbolCode.length) {
+			int symbolCode = elementTypeIndexToSymbolCode[index];
+			if (symbolCode >= 0) {
+				return symbolCode;
 			}
 		}
 		throw new RuntimeException("unknown token: " + elementType);
@@ -212,45 +206,45 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		// initialize static parser information
 		initializeStatic();
 
-		// handle unrecoverable syntax errors
-		PsiBuilder.Marker wholeFileMarker = psiBuilder.mark();
-		PsiBuilder.Marker preParseMarker = psiBuilder.mark();
-		try {
+        // handle unrecoverable syntax errors
+        PsiBuilder.Marker wholeFileMarker = psiBuilder.mark();
+        PsiBuilder.Marker preParseMarker = psiBuilder.mark();
+        try {
 
-			// Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
-			// accept action here since the input cannot contain EOF.
-			while (!psiBuilder.eof()) {
-				if (consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null)) {
-					psiBuilder.advanceLexer();
-				} else {
-					recoverFromError(psiBuilder);
-				}
-			}
+            // Parse the input using the generated machine to build a parse tree. The state machine cannot execute the
+            // accept action here since the input cannot contain EOF.
+            while (!psiBuilder.eof()) {
+           		if (consumeSymbol(getSymbolCodeForElementType(psiBuilder.getTokenType()), null)) {
+                	psiBuilder.advanceLexer();
+           		} else {
+           			recoverFromError(psiBuilder);
+           		}
+            }
 
-			// Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
-			// a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
-			if (!consumeSymbol(EOF_TOKEN_CODE, null)) {
+            // Consume the EOF token. This should (possibly after some reductions) accept the input. If not, this causes
+            // a syntax error (unexpected EOF), since the parser generator wouldn't emit a "shift EOF" action.
+			if (!consumeSymbol(EOF_SYMBOL_CODE, null)) {
 				recoverFromError(psiBuilder);
-				if (!consumeSymbol(EOF_TOKEN_CODE, null)) {
+				if (!consumeSymbol(EOF_SYMBOL_CODE, null)) {
 					throw new UnrecoverableSyntaxException();
 				}
 			}
 
-		} catch (UnrecoverableSyntaxException e) {
+        } catch (UnrecoverableSyntaxException e) {
 
-			// Build a "code fragment" node that contains the parsed and partially reduced part (i.e. the parse tree
-			// stack), then the exception. This will report the error properly and also consume the remaining tokens.
-			List<Object> nodeBuilder = new ArrayList<>();
-			nodeBuilder.add(Symbols.__PARSED_FRAGMENT);
-			for (int i=0; i<stackSize; i++) {
-				nodeBuilder.add(parseTreeStack[i]);
-			}
-			nodeBuilder.add(e);
-			parseTreeStack[0] = nodeBuilder.toArray();
-			stackSize = 1;
+            // Build a "code fragment" node that contains the parsed and partially reduced part (i.e. the parse tree
+            // stack), then the exception. This will report the error properly and also consume the remaining tokens.
+            List<Object> nodeBuilder = new ArrayList<>();
+            nodeBuilder.add(Symbols.__PARSED_FRAGMENT);
+            for (int i=0; i<stackSize; i++) {
+                nodeBuilder.add(parseTreeStack[i]);
+            }
+            nodeBuilder.add(e);
+            parseTreeStack[0] = nodeBuilder.toArray();
+            stackSize = 1;
 
-		}
-		preParseMarker.rollbackTo();
+        }
+        preParseMarker.rollbackTo();
 
 		// At this point, the state stack should contain single element (the start state) and the associated parse
 		// tree stack contains the root node as its single element. If anything in the input tried to prevent that,
@@ -303,12 +297,12 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		state = newState;
 	}
 
-	private void reduce(int reductionCode) throws UnrecoverableSyntaxException {
+	private void reduce(int alternativeIndex) throws UnrecoverableSyntaxException {
 
 		// determine the reduction (nonterminal + alternative) to reduce
-		int rightHandSideLength = REDUCTION_CODE_TO_RIGHT_HAND_SIDE_LENGTH[reductionCode];
-		IElementType nonterminalElementType = REDUCTION_CODE_TO_NONTERMINAL_ELEMENT_TYPE[reductionCode];
-		int nonterminalSymbolCode = REDUCTION_CODE_TO_NONTERMINAL_SYMBOL_CODE[reductionCode];
+		int rightHandSideLength = ALTERNATIVE_INDEX_TO_RIGHT_HAND_SIDE_LENGTH[alternativeIndex];
+		IElementType nonterminalElementType = ALTERNATIVE_INDEX_TO_NONTERMINAL_ELEMENT_TYPE[alternativeIndex];
+		int nonterminalSymbolCode = ALTERNATIVE_INDEX_TO_NONTERMINAL_SYMBOL_CODE[alternativeIndex];
 
 		// pop (rightHandSideLength) states off the state stack
 		if (rightHandSideLength > 0) {
@@ -329,9 +323,9 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 	}
 
 	private void feedPsiBuilder(PsiBuilder builder, Object what) {
-		if (what == null) {
-			builder.advanceLexer();
-		} else if (what instanceof Object[]) {
+	    if (what == null) {
+            builder.advanceLexer();
+	    } else if (what instanceof Object[]) {
 			Object[] reduction = (Object[]) what;
 			PsiBuilder.Marker marker = builder.mark();
 			for (int i = 1; i < reduction.length; i++) {
@@ -344,10 +338,10 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 		} else if (what == ERROR_LOCATION_INDICATOR) {
 			builder.error("syntax error");
 		} else if (what instanceof UnrecoverableSyntaxException) {
-			builder.error(((UnrecoverableSyntaxException)what).getMessage());
-			while (!builder.eof()) {
-				builder.advanceLexer();
-			}
+            builder.error(((UnrecoverableSyntaxException)what).getMessage());
+            while (!builder.eof()) {
+            	builder.advanceLexer();
+            }
 		}
 	}
 
@@ -378,7 +372,7 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 
 		// all symbols (terminals and nonterminals) we removed make up the first part of the erroneous content
 		List<Object> errorNodeBuilder = new ArrayList<>();
-		errorNodeBuilder.add(Symbols.__PARSED_FRAGMENT); // not an error-indicating element type, see next paragraph
+        errorNodeBuilder.add(Symbols.__PARSED_FRAGMENT); // not an error-indicating element type, see next paragraph
 		for (int i = stackSize; i < originalStackSize; i++) {
 			errorNodeBuilder.add(parseTreeStack[i]);
 		}
@@ -409,15 +403,15 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 			PsiBuilder.Marker marker = psiBuilder.mark();
 			boolean success = true;
 			for (int i = 0; i < RECOVERY_SYNC_LENGTH && !psiBuilder.eof(); i++) {
-				if (consumeSymbol(getTokenCodeForElementType(psiBuilder.getTokenType()), null)) {
-					psiBuilder.advanceLexer();
-				} else {
-					success = false;
-					break;
-				}
+           		if (consumeSymbol(getSymbolCodeForElementType(psiBuilder.getTokenType()), null)) {
+                	psiBuilder.advanceLexer();
+           		} else {
+           			success = false;
+           			break;
+           		}
 			}
 			if (success && psiBuilder.eof()) {
-				success = consumeSymbol(EOF_TOKEN_CODE, null);
+				success = consumeSymbol(EOF_SYMBOL_CODE, null);
 			}
 			marker.rollbackTo();
 
@@ -446,12 +440,12 @@ public class MapagGeneratedCalculationParser implements PsiParser, LightPsiParse
 
 	}
 
-	private static class UnrecoverableSyntaxException extends Exception {
+    private static class UnrecoverableSyntaxException extends Exception {
 
-		public UnrecoverableSyntaxException() {
-			super("syntax error");
-		}
+        public UnrecoverableSyntaxException() {
+            super("syntax error");
+        }
 
-	}
+    }
 
 }

@@ -24,11 +24,10 @@ public class Symbols {
 	//
 
 	public static final CalculatorElementType calculation = new CalculatorElementType("calculation");
-	public static final CalculatorElementType calculation_1 = new CalculatorElementType("calculation_1");
-	public static final CalculatorElementType calculation_2 = new CalculatorElementType("calculation_2");
+	public static final CalculatorElementType calculation_Statements = new CalculatorElementType("calculation_Statements");
 	public static final CalculatorElementType expression = new CalculatorElementType("expression");
-	public static final CalculatorElementType expression_1 = new CalculatorElementType("expression_1");
-	public static final CalculatorElementType expression_2 = new CalculatorElementType("expression_2");
+	public static final CalculatorElementType expression_Additive_Operator = new CalculatorElementType("expression_Additive_Operator");
+	public static final CalculatorElementType expression_Multiplicative_Operator = new CalculatorElementType("expression_Multiplicative_Operator");
 	public static final CalculatorElementType statement = new CalculatorElementType("statement");
 
 
@@ -36,7 +35,7 @@ public class Symbols {
 	// special
 	//
 
-	// partially parsed input in case of an error
+    // partially parsed input in case of an error
 	public static final CalculatorElementType __PARSED_FRAGMENT = new CalculatorElementType("__PARSED_FRAGMENT");
 
 }

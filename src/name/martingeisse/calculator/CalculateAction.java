@@ -14,6 +14,7 @@ public class CalculateAction extends AnAction {
 
 	@Override
 	public void actionPerformed(AnActionEvent anActionEvent) {
+		// TODO
 		System.out.println("calculating... done!");
 	}
 
